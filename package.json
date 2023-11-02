@@ -1,0 +1,24 @@
+{
+	"name": "com.gentlymadstudios.displayhelper",
+	"displayName": "Display Helper",
+	"description": "A comprehensive set of classes to help set the screen resolution, screen modes, displays, refresh rates correctly",
+	"version": "0.0.1",
+	"unity": "2022.2",
+	"license": "MIT",
+	"documentationUrl": "https://github.com/Gentlymad-Studios/DisplayHelper/blob/master/README.md",
+  	"changelogUrl": "https://github.com/Gentlymad-Studios/DisplayHelper/blob/master/CHANGELOG.md",
+  	"licensesUrl": "https://github.com/Gentlymad-Studios/DisplayHelper/blob/master/LICENSE.md",
+	"custom_packageJsonLink": "https://raw.githubusercontent.com/Gentlymad-Studios/DisplayHelper/master/package.json",
+	"author": {
+		"name": "Gentlymad Studios",
+		"url": "https://gentlymadstudios.com",
+		"email": "team@gentlymadstudios.com"
+	},
+	"samples": [
+        {
+            "displayName": "ExampleSettingsUI",
+            "description": "This sets you up with an example how to use the helper classes in your UI code",
+            "path": "Samples~/ExampleSettingsUI"
+        }
+    ]
+}

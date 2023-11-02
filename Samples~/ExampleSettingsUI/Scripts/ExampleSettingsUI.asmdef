@@ -1,0 +1,16 @@
+{
+    "name": "ExampleSettingsUI",
+    "rootNamespace": "",
+    "references": [
+        "GUID:5ae590d8eff4b9f4889ebd8d2b4a209c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
