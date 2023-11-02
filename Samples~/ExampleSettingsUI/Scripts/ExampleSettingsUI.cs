@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ExampleSettingsUI {
+
+    using static ConditionalLogger;
+
     public class ExampleSettingsUI : MonoBehaviour {
         public Dropdown displayDropdown;
         public Dropdown resolutionDropdown;
@@ -60,7 +63,8 @@ namespace ExampleSettingsUI {
         }
 
         private async void ResetSettings() {
-            Debug.Log("RESET SETTINGS");
+            Log("RESET SETTINGS");
+
             displayHelper.AbortAdjustment();
             HideConfirmationDialog();
 
@@ -74,6 +78,8 @@ namespace ExampleSettingsUI {
         }
 
         private async void RevertSettings() {
+            Log("REVERT SETTINGS");
+
             displayHelper.AbortAdjustment();
             HideConfirmationDialog();
             await displayHelper.AdjustAll(settings.Last);
@@ -81,6 +87,8 @@ namespace ExampleSettingsUI {
         }
 
         private void KeepSettings() {
+            Log("KEEP SETTINGS");
+
             HideConfirmationDialog();
             settings.Last.CopyFrom(settings.Temp);
         }
@@ -117,7 +125,7 @@ namespace ExampleSettingsUI {
         }
 
         private void OnAdjustmentSuccessOrFail(AsyncHelper.AdjustmentType changeType, AsyncHelper.Status status) {
-            Debug.Log($"changeType: {changeType} | status: {status}");
+            Log($"changeType: {changeType} | status: {status}");
             UpdateUI();
         }
 
@@ -132,7 +140,7 @@ namespace ExampleSettingsUI {
                 displayDropdown.options[i].text = $"{displays[i].name} ({i})";
             }
 
-            Debug.Log($"Display dropdown setup | index:{currentDisplayIndex} | resolvedIndex:{displays[currentDisplayIndex].name} | uielement:{displayDropdown.options[currentDisplayIndex].text} | mainDisplay:{Screen.mainWindowDisplayInfo.name} |");
+            Log($"Display dropdown setup | index:{currentDisplayIndex} | resolvedIndex:{displays[currentDisplayIndex].name} | uielement:{displayDropdown.options[currentDisplayIndex].text} | mainDisplay:{Screen.mainWindowDisplayInfo.name} |");
             // set the current display index in the dropdown accordingly
             displayDropdown.SetValueWithoutNotify(currentDisplayIndex);
             displayDropdown.RefreshShownValue();
@@ -146,7 +154,7 @@ namespace ExampleSettingsUI {
             List<ResolutionInfo> resolutions = displayHelper.GetResolutions(out int currentResolutionID);
 
             (int width, int height) = displayHelper.DecodeResolution(currentResolutionID);
-            Debug.Log($"current resolution: {width} {height}");
+            Log($"current resolution: {width} {height}");
 
             // remove exceeding dropdown items
             SetupDropdownEntries(resolutionDropdown, resolutions.Count);
@@ -174,7 +182,7 @@ namespace ExampleSettingsUI {
         }
 
         private void UpdateRefreshRateDropdown(bool capture) {
-            Debug.Log($"UpdateRefreshRateDropdown actual:{Screen.fullScreenMode} | isExclusive:{displayHelper.IsExclusiveFullScreen}");
+            Log($"UpdateRefreshRateDropdown actual:{Screen.fullScreenMode} | isExclusive:{displayHelper.IsExclusiveFullScreen}");
             if (!displayHelper.IsExclusiveFullScreen) {
                 refreshRateDropdown.gameObject.SetActive(false);
                 if (capture) {
@@ -219,45 +227,50 @@ namespace ExampleSettingsUI {
         }
 
         private async void OnDisplayChanged(int index) {
-            var decodedResolution = displayHelper.DecodeResolution(currentResolutionID);
-            Debug.Log($"OnDisplayChanged target:{displayDropdown.options[index].text} | current refreshrate:{Screen.currentResolution.refreshRateRatio.value} | current resolution:{displayHelper.CurrentWidth}x{displayHelper.CurrentHeight} | resolvedID:{decodedResolution.width}x{decodedResolution.height} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
-            Debug.Log($"------------------------");
+            Log($"OnDisplayChanged target:{displayDropdown.options[index].text} | current refreshrate:{Screen.currentResolution.refreshRateRatio.value} | current resolution:{displayHelper.CurrentWidth}x{displayHelper.CurrentHeight} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
+            Log($"------------------------");
+
             settings.Temp.displayIndex = index;
             await displayHelper.ChangeDisplayAsync(index);
-            Debug.Log($"------------------------");
-            Debug.Log($"After OnDisplayChanged target:{displayDropdown.options[index].text} | resolvedTarget:{screenModes[index].Item2} | current refreshrate:{Screen.currentResolution.refreshRateRatio.value} | current resolution:{displayHelper.CurrentWidth}x{displayHelper.CurrentHeight} | resolvedID:{decodedResolution.width}x{decodedResolution.height} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
+
+            Log($"------------------------");
+            Log($"After OnDisplayChanged target:{displayDropdown.options[index].text} | resolvedTarget:{screenModes[index].Item2} | current refreshrate:{Screen.currentResolution.refreshRateRatio.value} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
         }
 
         private async void OnResolutionChanged(int index) {
             string[] currentResolution = resolutionDropdown.options[index].text.Split('x');
             currentResolutionID = Helper.EncodeResolution(int.Parse(currentResolution[0]), int.Parse(currentResolution[1]));
-            var decodedResolution = displayHelper.DecodeResolution(currentResolutionID);
-            Debug.Log($"OnResolutionChanged target:{resolutionDropdown.options[index].text} | current:{displayHelper.CurrentWidth}x{displayHelper.CurrentHeight} | resolvedID:{decodedResolution.width}x{decodedResolution.height} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
-            Debug.Log($"------------------------");
+
+            Log($"OnResolutionChanged target:{resolutionDropdown.options[index].text} | current:{displayHelper.CurrentWidth}x{displayHelper.CurrentHeight} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
+            Log($"------------------------");
+
             settings.Temp.resolutionID = currentResolutionID;
             await displayHelper.SetResolutionByIDAsync(currentResolutionID);
-            Debug.Log($"------------------------");
-            Debug.Log($"After OnResolutionChanged target:{resolutionDropdown.options[index].text} | current:{displayHelper.CurrentWidth}x{displayHelper.CurrentHeight} | resolvedID:{decodedResolution.width}x{decodedResolution.height} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
+
+            Log($"------------------------");
+            Log($"After OnResolutionChanged target:{resolutionDropdown.options[index].text} | current:{displayHelper.CurrentWidth}x{displayHelper.CurrentHeight} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
         }
 
         private async void OnRefreshRateChanged(int index) {
-            var decodedResolution = displayHelper.DecodeResolution(currentResolutionID);
-            Debug.Log($"OnRefreshRateChanged target:{refreshRateDropdown.options[index].text} | current:{Screen.currentResolution.refreshRateRatio.value} | current resolution:{displayHelper.CurrentWidth}x{displayHelper.CurrentHeight} | resolvedID:{decodedResolution.width}x{decodedResolution.height} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
-            Debug.Log($"------------------------");
+            Log($"OnRefreshRateChanged target:{refreshRateDropdown.options[index].text} | current:{Screen.currentResolution.refreshRateRatio.value} | current resolution:{displayHelper.CurrentWidth}x{displayHelper.CurrentHeight} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
+            Log($"------------------------");
+
             settings.Temp.refreshRateIndex = index;
             await displayHelper.SetResolutionByIDAsync(currentResolutionID, index);
-            Debug.Log($"------------------------");
-            Debug.Log($"After OnRefreshRateChanged target:{refreshRateDropdown.options[index].text} | current:{Screen.currentResolution.refreshRateRatio.value} | current resolution:{displayHelper.CurrentWidth}x{displayHelper.CurrentHeight} | resolvedID:{decodedResolution.width}x{decodedResolution.height} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
+
+            Log($"------------------------");
+            Log($"After OnRefreshRateChanged target:{refreshRateDropdown.options[index].text} | current:{Screen.currentResolution.refreshRateRatio.value} | current resolution:{displayHelper.CurrentWidth}x{displayHelper.CurrentHeight} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
         }
 
         private async void OnScreenModeChanged(int index) {
-            var decodedResolution = displayHelper.DecodeResolution(currentResolutionID);
-            Debug.Log($"OnFullScreenModeChanged target:{screenModeDropdown.options[index].text} | resolvedTarget:{screenModes[index].Item2} | current refreshrate:{Screen.currentResolution.refreshRateRatio.value} | current resolution:{displayHelper.CurrentWidth}x{displayHelper.CurrentHeight} | resolvedID:{decodedResolution.width}x{decodedResolution.height} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
-            Debug.Log($"------------------------");
+            Log($"OnFullScreenModeChanged target:{screenModeDropdown.options[index].text} | resolvedTarget:{screenModes[index].Item2} | current refreshrate:{Screen.currentResolution.refreshRateRatio.value} | current resolution:{displayHelper.CurrentWidth}x{displayHelper.CurrentHeight} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
+            Log($"------------------------");
+
             settings.Temp.screenMode = screenModes[index].Item2;
             await displayHelper.SetScreenModeAsync(screenModes[index].Item2);
-            Debug.Log($"------------------------");
-            Debug.Log($"After OnFullScreenModeChanged target:{screenModeDropdown.options[index].text} | resolvedTarget:{screenModes[index].Item2} | current refreshrate:{Screen.currentResolution.refreshRateRatio.value} | current resolution:{displayHelper.CurrentWidth}x{displayHelper.CurrentHeight} | resolvedID:{decodedResolution.width}x{decodedResolution.height} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
+
+            Log($"------------------------");
+            Log($"After OnFullScreenModeChanged target:{screenModeDropdown.options[index].text} | resolvedTarget:{screenModes[index].Item2} | current refreshrate:{Screen.currentResolution.refreshRateRatio.value} | current resolution:{displayHelper.CurrentWidth}x{displayHelper.CurrentHeight} | fullscreen:{displayHelper.ScreenMode} | refreshRate {Screen.currentResolution.refreshRateRatio.value}");
         }
 
         /// <summary>

@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace DisplayHelper {
 
+    using static ConditionalLogger;
     using static Screen;
 
     /// <summary>
@@ -74,7 +75,7 @@ namespace DisplayHelper {
             }
 
             void SetResolutionAction() => SetResolution(ref resolution, ref refreshRate);
-            Debug.Log($"SetResolutionByIDAsync BASE {resolution.width}x{resolution.height} | {refreshRate.value}");
+            Log($"SetResolutionByIDAsync BASE {resolution.width}x{resolution.height} | {refreshRate.value}");
             await DoAdjustment(AdjustmentType.ResolutionChange, SetResolutionAction, equalityCheck, notify);
         }
 
@@ -85,7 +86,7 @@ namespace DisplayHelper {
         /// <returns></returns>
         public async Task SetResolutionByIDAsync(int resolutionID, bool notify = true) {
             ResolutionInfo resolution = resolutionInfos[resolutionInfosLookup[resolutionID]];
-            Debug.Log($"SetResolutionByIDAsync {resolutionID} | {resolution.width}x{resolution.height}");
+            Log($"SetResolutionByIDAsync {resolutionID} | {resolution.width}x{resolution.height}");
             await SetResolutionAsync(resolution, currentResolution.refreshRateRatio, notify);
         }
 
@@ -98,7 +99,7 @@ namespace DisplayHelper {
         public async Task SetResolutionByIDAsync(int resolutionID, int refreshIndex, bool notify = true) {
             ResolutionInfo resolution = resolutionInfos[resolutionInfosLookup[resolutionID]];
             RefreshRateInfo refreshRate = (RefreshRateInfo)resolution.validRefreshRates[refreshIndex];
-            Debug.Log($"SetResolutionByIDAsync {resolutionID} | {refreshIndex} | {resolution.width}x{resolution.height} | {refreshRate.refreshRate.value}");
+            Log($"SetResolutionByIDAsync {resolutionID} | {refreshIndex} | {resolution.width}x{resolution.height} | {refreshRate.refreshRate.value}");
             await SetResolutionAsync(resolution, refreshRate.refreshRate, notify);
         }
 
@@ -108,7 +109,7 @@ namespace DisplayHelper {
         /// <param name="newFullScreenMode">what fullscreenmode should we adjust this to?</param>
         /// <returns></returns>
         public async Task SetScreenModeAsync(FullScreenMode newFullScreenMode, bool notify = true) {
-            Debug.Log($"SetFullscreenModeAsync {newFullScreenMode} | {notify}");
+            Log($"SetFullscreenModeAsync {newFullScreenMode} | {notify}");
             bool IsFullScreenModeEqual() => fullScreenMode == newFullScreenMode;
             void SetFullScreenMode() => SetScreenMode(newFullScreenMode);
             await DoAdjustment(AdjustmentType.ScreenModeChange, SetFullScreenMode, IsFullScreenModeEqual, notify);
@@ -120,7 +121,7 @@ namespace DisplayHelper {
         /// <param name="resolutionSettings">The settings object containing all the properties we want to use for the adjustment</param>
         /// <returns></returns>
         public async Task AdjustAll(DisplaySettings resolutionSettings) {
-            Debug.Log($"AdjustAll {resolutionSettings.displayIndex} | {resolutionSettings.screenMode} | {resolutionSettings.resolutionID} | {resolutionSettings.refreshRateIndex}");
+            Log($"AdjustAll {resolutionSettings.displayIndex} | {resolutionSettings.screenMode} | {resolutionSettings.resolutionID} | {resolutionSettings.refreshRateIndex}");
             async Task AdjustAllAction() {
                 await ChangeDisplayAsync(resolutionSettings.displayIndex, false);
                 await SetScreenModeAsync(resolutionSettings.screenMode, false);
@@ -135,7 +136,7 @@ namespace DisplayHelper {
         /// <param name="index">What display should be displayed?</param>
         /// <returns></returns>
         public async Task ChangeDisplayAsync(int index, bool notify = true) {
-            Debug.Log($"ChangeDisplayAsync {index} | {notify}");
+            Log($"ChangeDisplayAsync {index} | {notify}");
             // the adjustment action
             async Task ChangeDisplayAdjustment() {
                 // get the display by its index...
@@ -170,7 +171,7 @@ namespace DisplayHelper {
         /// <param name="equalityCheck">Check wether we really need to adjust something...</param>
         /// <returns></returns>
         private async Task DoAdjustment(AdjustmentType changeType, Action adjustmentAction, Func<bool> equalityCheck, bool notify = true) {
-            Debug.Log($"DoAdjustment {changeType} | {adjustmentAction.Method.Name} | {equalityCheck.Method.Name} | {notify}");
+            Log($"DoAdjustment {changeType} | {adjustmentAction.Method.Name} | {equalityCheck.Method.Name} | {notify}");
             async Task AdjustmentLogic() {
                 // do we actually need to adjust something?
                 if (!equalityCheck()) {
@@ -194,7 +195,7 @@ namespace DisplayHelper {
         /// <param name="adjustmentAction">The adjusment action we want to execute</param>
         /// <returns></returns>
         private async Task DoAdjustment(AdjustmentType changeType, Func<Task> adjustmentAction, bool notify) {
-            Debug.Log($"DoAdjustment {changeType} | {adjustmentAction.Method.Name} | {notify}");
+            Log($"DoAdjustment {changeType} | {adjustmentAction.Method.Name} | {notify}");
             // return early if we are already adjusting
             if (!StartAdjustment(changeType, notify)) {
                 return;
@@ -218,11 +219,11 @@ namespace DisplayHelper {
         /// </summary>
         /// <returns></returns>
         private bool StartAdjustment(AdjustmentType changeType, bool notify) {
-            Debug.Log($"StartAdjustment {notify}");
+            Log($"StartAdjustment {notify}");
             if (notify) {
                 // are we already adjusting? -> return early
                 if (currentlyAdjusting) {
-                    Debug.Log("Already adjusting, this is not allowed!");
+                    Log("Already adjusting, this is not allowed!");
                     return false;
                 }
 
@@ -243,7 +244,7 @@ namespace DisplayHelper {
         /// <param name="changeType">What type of adjustment was this?</param>
         /// <param name="success">Were we successful?</param>
         private void EndAdjustment(AdjustmentType changeType, Status status, bool notify) {
-            Debug.Log($"EndAdjustment {changeType} | {status} | {notify}");
+            Log($"EndAdjustment {changeType} | {status} | {notify}");
             if (notify) {
                 // update our list of displays
                 UpdateDisplays();

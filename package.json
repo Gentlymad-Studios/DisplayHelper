@@ -2,7 +2,7 @@
 	"name": "com.gentlymadstudios.displayhelper",
 	"displayName": "Display Helper",
 	"description": "A comprehensive set of classes to help set the screen resolution, screen modes, displays, refresh rates correctly",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"unity": "2022.2",
 	"license": "MIT",
 	"documentationUrl": "https://github.com/Gentlymad-Studios/DisplayHelper/blob/master/README.md",

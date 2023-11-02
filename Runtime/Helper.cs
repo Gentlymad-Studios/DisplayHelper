@@ -5,6 +5,7 @@ using UnityEngine;
 namespace DisplayHelper {
 
     using static Screen;
+    using static ConditionalLogger;
 
     public class Helper {
         private const int BitShift = 16;
@@ -45,15 +46,15 @@ namespace DisplayHelper {
         /// <param name="currentIndex"></param>
         /// <returns></returns>
         public List<DisplayInfo> GetDisplays(out int currentIndex) {
-            Debug.Log("main display: "+ mainWindowDisplayInfo.name);
+            Log("main display: "+ mainWindowDisplayInfo.name);
             for (int i=0; i< displays.Count; i++) {
                 if (displays[i].Equals(mainWindowDisplayInfo)) {
-                    Debug.Log("display found " + displays[i].name + " index:"+i);
+                    Log("display found " + displays[i].name + " index:"+i);
                     currentIndex = i;
                     return displays;
                 }
             }
-            Debug.Log("display NOT found assuming index:" + 0);
+            Log("display NOT found assuming index:" + 0);
             currentIndex = 0;
             return displays;
         }
