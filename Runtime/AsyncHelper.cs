@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -68,13 +68,39 @@ namespace DisplayHelper {
         /// <returns></returns>
         private async Task SetResolutionAsync(ResolutionInfo resolution, RefreshRate refreshRate, bool notify = true) {
             Func<bool> equalityCheck;
+
+			int frames = 0;
             if (fullScreenMode == FullScreenMode.ExclusiveFullScreen) {
-                equalityCheck = () => IsResolutionEqual(ref resolution, ref refreshRate);
-            } else {
-                equalityCheck = () => IsResolutionEqual(ref resolution);
+				equalityCheck = () => {
+					bool resEqual = IsResolutionEqual(ref resolution, ref refreshRate);
+					if (!resEqual) {
+						frames++;
+						if (frames >= 4) {
+							resEqual = true;
+							frames = 0;
+						}
+					}
+					return resEqual;
+				};
+			} else {
+                equalityCheck = () => {
+					bool resEqual = IsResolutionEqual(ref resolution);
+					if (!resEqual) {
+						frames++;
+						if (frames >= 4) {
+							resEqual = true;
+							frames = 0;
+						}
+					}
+					return resEqual;
+				};
             }
 
-            void SetResolutionAction() => SetResolution(ref resolution, ref refreshRate);
+            void SetResolutionAction(){
+				Log($"before res");
+				SetResolution(ref resolution, ref refreshRate);
+				Log($"after res");
+			}
             Log($"SetResolutionByIDAsync BASE {resolution.width}x{resolution.height} | {refreshRate.value}");
             await DoAdjustment(AdjustmentType.ResolutionChange, SetResolutionAction, equalityCheck, notify);
         }
@@ -200,18 +226,22 @@ namespace DisplayHelper {
             if (!StartAdjustment(changeType, notify)) {
                 return;
             }
-            Status status = Status.Fail;
+			Log($"DoAdjustment 2");
+			Status status = Status.Fail;
             try {
                 // await our adjustment logic
                 await adjustmentAction();
                 status = Status.Success;
-            } catch (Exception e) {
+				Log($"DoAdjustment 3");
+			} catch (Exception e) {
                 // print any errors that were encountered
                 Debug.Log(e.Message);
-            } finally {
+				Log($"DoAdjustment 4");
+			} finally {
                 // and the adjustment and notify...
                 EndAdjustment(changeType, status, notify);
-            }
+				Log($"DoAdjustment 5");
+			}
         }
 
         /// <summary>
